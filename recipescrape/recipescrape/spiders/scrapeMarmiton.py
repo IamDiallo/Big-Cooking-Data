@@ -91,6 +91,7 @@ class Marmiton(CrawlSpider):
             
             for index, link in enumerate(infos_ingre):
                 img_ingre_url = link.xpath('.//div[@class="RCP__sc-vgpd2s-2 fNmocT"]/picture/img/@src').get()
+                #problem à resoudre
                 qty_ingre = delSpaces(link.xpath('.//span[@class="SHRD__sc-10plygc-0 epviYI"]/text()').extract()[0])
                 nom_ingre = link.xpath('.//span[@class="RCP__sc-8cqrvd-3 itCXhd"]/text()').get()
                 if(nom_ingre == None):
