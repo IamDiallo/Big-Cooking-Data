@@ -6,7 +6,7 @@ import logging
 
 DEBUG = False
 FIELDS = [
-   'id','nom', 'img_url', 'time_prepa','time_repo','time_cuisson', 'difficylty', 'budget','numberP',
+   'id','nom', 'img_url','time_total', 'time_prepa','time_repo','time_cuisson', 'difficylty', 'budget','numberP',
    'ingredients','id_ingre','nom_ingre', 'quantity','image_ingre','titre', 'description', 'etape', 'etap_id'
 ]
 
@@ -75,6 +75,7 @@ class Marmiton(CrawlSpider):
             time_prepa = time[1]
             time_repo = time[2]
             time_cuisson = time[3]
+            time = infosRecette[0]
             difficulty = infosRecette[1]
             budget = infosRecette[2]
             number_people = 1
@@ -90,10 +91,12 @@ class Marmiton(CrawlSpider):
             infos_ingre = response.css('div.MuiGrid-root')
             
             for index, link in enumerate(infos_ingre):
+                print()
                 img_ingre_url = link.xpath('.//div[@class="RCP__sc-vgpd2s-2 fNmocT"]/picture/img/@src').get()
                 #problem à resoudre
-                qty_ingre = delSpaces(link.xpath('.//span[@class="SHRD__sc-10plygc-0 epviYI"]/text()').extract()[0])
+                qty_ingre = link.xpath('.//span[@class="SHRD__sc-10plygc-0 epviYI"]/text()').extract_first()
                 nom_ingre = link.xpath('.//span[@class="RCP__sc-8cqrvd-3 itCXhd"]/text()').get()
+                qty = link.css('span.epviYI::text').get()
                 if(nom_ingre == None):
                     nom_ingre = link.xpath('.//span[@class="RCP__sc-8cqrvd-3 cDbUWZ"]/text()').get()
                 if(qty_ingre == None):
@@ -107,6 +110,7 @@ class Marmiton(CrawlSpider):
                 'id':self.item_index,
                 'nom':name,
                 'img_url': img_recette_url,
+                'time_total': time,
                 'time_prepa': time_prepa, 
                 'time_repo': time_repo, 
                 'time_cuisson': time_cuisson, 
