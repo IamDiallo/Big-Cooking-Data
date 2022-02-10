@@ -44,7 +44,11 @@ class Marmiton(CrawlSpider):
     name = 'marmiton'
     allowed_domains = ['marmiton.org']
 
-    start_urls = [ 'https://www.marmiton.org/recettes?page=2']
+    start_urls = [ 
+        #'https://www.marmiton.org/recettes?type=platprincipal',
+        #'https://www.marmiton.org/recettes?page=2',
+        'https://www.marmiton.org/recettes?type=dessert'
+        ]
     
     # first get the next button which will visit every page of a category
     rule_next = Rule(LinkExtractor(
@@ -84,7 +88,7 @@ class Marmiton(CrawlSpider):
             
             for i, etape in enumerate(etape_infos):
                 titre = etape.xpath('.//div[@class="RCP__sc-1wtzf9a-0 hXKiLp"]/h3/text()').get()
-                description = etape.xpath('.//p[@class="RCP__sc-1wtzf9a-3 jFIVDw"]/span/text()').get()
+                description = etape.xpath('.//p[@class="RCP__sc-1wtzf9a-3 jFIVDw"]/text()').get()
                 etape_dic = {'etap_id':i,'titre':titre, 'description':description}
                 etape_tab.append(etape_dic)
 
@@ -101,8 +105,9 @@ class Marmiton(CrawlSpider):
                     nom_ingre = link.xpath('.//span[@class="RCP__sc-8cqrvd-3 cDbUWZ"]/text()').get()
                 if(qty_ingre == None):
                     qty_ingre = 'empty'
-                ingre_dic={"id_ingre":index,"nom_ingre":nom_ingre,"quantity":qty_ingre,"image_ingre":img_ingre_url}
-                ingre_table.append(ingre_dic)
+                if index !=0:
+                    ingre_dic={"id_ingre":index,"nom_ingre":nom_ingre,"quantity":qty_ingre,"image_ingre":img_ingre_url}
+                    ingre_table.append(ingre_dic)
         except:
               print('error: on selecting info')
         self.item_index += 1
@@ -125,4 +130,3 @@ class Marmiton(CrawlSpider):
         dataDic = {}
         dataDic.update(data)
         yield dataDic
-    
