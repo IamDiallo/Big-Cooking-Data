@@ -49,7 +49,7 @@ class Marmiton(CrawlSpider):
 
     start_urls = [ 
         'https://www.marmiton.org/recettes?type=platprincipal',
-        #'https://www.marmiton.org/recettes?page=2',
+        # 'https://www.marmiton.org/recettes?page=2',
         #'https://www.marmiton.org/recettes?type=dessert'
         ]
     
