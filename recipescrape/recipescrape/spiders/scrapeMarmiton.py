@@ -6,8 +6,11 @@ import logging
 
 DEBUG = False
 FIELDS = [
-   'id','nom', 'img_url','time_total', 'time_prepa','time_repo','time_cuisson', 'difficylty', 'budget','numberP',
-   'ingredients','id_ingre','nom_ingre', 'quantity','image_ingre','titre', 'description', 'etape', 'etap_id'
+   'id','nom', 'img_url','time_total', 'time_prepa',
+   'time_repo','time_cuisson', 'difficulty', 'budget',
+   'numberP','ingredients','id_ingre','nom_ingre', 
+   'quantity','image_ingre','titre', 'description', 
+   'etape', 'etap_id', 'category','global_rating'
 ]
 
 
@@ -45,9 +48,9 @@ class Marmiton(CrawlSpider):
     allowed_domains = ['marmiton.org']
 
     start_urls = [ 
-        #'https://www.marmiton.org/recettes?type=platprincipal',
+        'https://www.marmiton.org/recettes?type=platprincipal',
         #'https://www.marmiton.org/recettes?page=2',
-        'https://www.marmiton.org/recettes?type=dessert'
+        #'https://www.marmiton.org/recettes?type=dessert'
         ]
     
     # first get the next button which will visit every page of a category
@@ -83,9 +86,11 @@ class Marmiton(CrawlSpider):
             difficulty = infosRecette[1]
             budget = infosRecette[2]
             number_people = 1
+            categories = response.xpath('.//span[@class="SHRD__sc-10plygc-0 duPxyD"]/text()').getall()
+            del categories[0]
+            global_rating = response.xpath('.//span[@class="SHRD__sc-10plygc-0 jHwZwD"]/text()').get()
             etapes = response.css('div.SHRD__sc-juz8gd-3')
             etape_infos = etapes.css("ul li")
-            
             for i, etape in enumerate(etape_infos):
                 titre = etape.xpath('.//div[@class="RCP__sc-1wtzf9a-0 hXKiLp"]/h3/text()').get()
                 description = etape.xpath('.//p[@class="RCP__sc-1wtzf9a-3 jFIVDw"]/text()').get()
@@ -93,9 +98,7 @@ class Marmiton(CrawlSpider):
                 etape_tab.append(etape_dic)
 
             infos_ingre = response.css('div.MuiGrid-root')
-            
             for index, link in enumerate(infos_ingre):
-                print()
                 img_ingre_url = link.xpath('.//div[@class="RCP__sc-vgpd2s-2 fNmocT"]/picture/img/@src').get()
                 #problem à resoudre
                 qty_ingre = link.xpath('.//span[@class="SHRD__sc-10plygc-0 epviYI"]/text()').extract_first()
@@ -115,11 +118,13 @@ class Marmiton(CrawlSpider):
                 'id':self.item_index,
                 'nom':name,
                 'img_url': img_recette_url,
+                'category': categories,
+                'global_rating':global_rating,
                 'time_total': time,
                 'time_prepa': time_prepa, 
                 'time_repo': time_repo, 
                 'time_cuisson': time_cuisson, 
-                'difficylty':difficulty, 
+                'difficulty':difficulty, 
                 'budget':budget ,
                 'numberP':number_people ,
                 'etape':etape_tab,
