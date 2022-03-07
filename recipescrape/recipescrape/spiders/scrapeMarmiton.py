@@ -48,9 +48,11 @@ class Marmiton(CrawlSpider):
     allowed_domains = ['marmiton.org']
 
     start_urls = [ 
-        'https://www.marmiton.org/recettes?type=platprincipal',
-        # 'https://www.marmiton.org/recettes?page=2',
-        #'https://www.marmiton.org/recettes?type=dessert'
+        # 'https://www.marmiton.org/recettes?type=platprincipal',
+        #  'https://www.marmiton.org/recettes?type=boisson',
+        #  'https://www.marmiton.org/recettes/index/categorie/aperitif-ou-buffet?rcp=0'
+        #   'https://www.marmiton.org/recettes?page=2',
+         'https://www.marmiton.org/recettes?type=dessert'
         ]
     
     # first get the next button which will visit every page of a category
@@ -66,7 +68,8 @@ class Marmiton(CrawlSpider):
                        follow=True,
                        )
     rules = (rule_recipe, rule_next)
-    item_index =-2
+    # item_index =-1
+    item_index =1660
     def parse_item(self, response):
         ingre_table = []
         etape_tab = []
@@ -88,14 +91,18 @@ class Marmiton(CrawlSpider):
             number_people = 1
             categories = response.xpath('.//span[@class="SHRD__sc-10plygc-0 duPxyD"]/text()').getall()
             del categories[0]
+            # del categories[1]
+            del categories[-1]
+            categories.pop(0)
+            del categories[-1]
             global_rating = response.xpath('.//span[@class="SHRD__sc-10plygc-0 jHwZwD"]/text()').get()
             etapes = response.css('div.SHRD__sc-juz8gd-3')
             etape_infos = etapes.css("ul li")
             for i, etape in enumerate(etape_infos):
                 titre = etape.xpath('.//div[@class="RCP__sc-1wtzf9a-0 hXKiLp"]/h3/text()').get()
                 description = etape.xpath('.//p[@class="RCP__sc-1wtzf9a-3 jFIVDw"]/text()').get()
-                etape_dic = {'etap_id':i,'titre':titre, 'description':description}
-                etape_tab.append(etape_dic)
+                # etape_dic = {'etap_id':i,'titre':titre, 'description':description}
+                etape_tab.append(description)
 
             infos_ingre = response.css('div.MuiGrid-root')
             for index, link in enumerate(infos_ingre):
@@ -109,6 +116,7 @@ class Marmiton(CrawlSpider):
                 if(qty_ingre == None):
                     qty_ingre = 'empty'
                 if index !=0:
+                    # ingre_dic={"id_ingre":index,"nom_ingre":nom_ingre,"quantity":qty_ingre,"image_ingre":img_ingre_url}
                     ingre_dic={"id_ingre":index,"nom_ingre":nom_ingre,"quantity":qty_ingre,"image_ingre":img_ingre_url}
                     ingre_table.append(ingre_dic)
         except:
@@ -120,7 +128,6 @@ class Marmiton(CrawlSpider):
                 'img_url': img_recette_url,
                 'category': categories,
                 'global_rating':global_rating,
-                'time_total': time,
                 'time_prepa': time_prepa, 
                 'time_repo': time_repo, 
                 'time_cuisson': time_cuisson, 
