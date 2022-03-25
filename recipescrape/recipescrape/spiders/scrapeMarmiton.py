@@ -68,8 +68,8 @@ class Marmiton(CrawlSpider):
                        follow=True,
                        )
     rules = (rule_recipe, rule_next)
-    # item_index =-1
-    item_index =1660
+    item_index =-1
+    item_index = 2079
     def parse_item(self, response):
         ingre_table = []
         etape_tab = []
@@ -78,7 +78,31 @@ class Marmiton(CrawlSpider):
             self.log(
                 f"{self.state['items_count']} {response.url}", logging.WARN)
         try:
-            img_recette_url = response.css(".SHRD__sc-dy77ha-0.vKBPb::attr(src)").extract_first()
+            img = response.css(".SHRD__sc-dy77ha-0.vKBPb::attr(src)").extract_first()
+            print("------------------------",img)
+            img = img.split("/")
+            img5 = img[5].split("_")
+           
+            if len(img5) >=4:
+                img_url = img[0] + "//" + img[2] + "/" +img[3] + "/"+ img[4] + "/" + img5[0] + "_" + img5[1] + "_" + img5[2] + "_" + img5[3] + "_" + "w1000h1000.jpg"
+            else:
+                img_url = img[0] + "//" + img[2] + "/" +img[3] + "/"+ img[4] + "/" + img5[0] + "_" + "w1000h1000.jpg"
+
+            # print("----------------RECETTES--------------------")
+            # img_recette_source = response.xpath('.//picture[@class="SHRD__sc-1rqpopx-1 kNPyTk"]/source/@srcset').getall()
+            # if img_recette_source == None:
+            #     img_recette_source = response.xpath('.//picture[@class="RCP__sc-40fnuy-0 dslNWH"]/source/@srcset').getall()
+            #     if img_recette_source == None:
+            #         img_recette_source = response.xpath('.//picture[@class=" RCP__sc-vgpd2s-2 fNmocT"]/source/@srcset').getall()
+            #         if  img_recette_source == None:
+            #             img_recette_source = "no image"  
+            # img_recette_source = img_recette_source[0]
+            # img_recette_source = img_recette_source.split(',')
+            # img_recette_source = img_recette_source[-1]
+            # img_recette_source = img_recette_source.split(' ')
+            # img_recette_source = img_recette_source[1]
+
+            
             name = response.css('h1.SHRD__sc-10plygc-0.itJBWW::text').get()
             infosRecette  = response.xpath('.//span[@class="SHRD__sc-10plygc-0 cBiAGP"]/p/text()').getall()
             time = response.xpath('.//span[@class="SHRD__sc-10plygc-0 bzAHrL"]/text()').getall()
@@ -91,26 +115,31 @@ class Marmiton(CrawlSpider):
             number_people = 1
             categories = response.xpath('.//span[@class="SHRD__sc-10plygc-0 duPxyD"]/text()').getall()
             del categories[0]
-            # del categories[1]
-            del categories[-1]
-            categories.pop(0)
+            # del categories[0]
+            if len(categories) > 2:
+                # del categories[1]
+                categories.pop(0)
             del categories[-1]
             global_rating = response.xpath('.//span[@class="SHRD__sc-10plygc-0 jHwZwD"]/text()').get()
             etapes = response.css('div.SHRD__sc-juz8gd-3')
             etape_infos = etapes.css("ul li")
             for i, etape in enumerate(etape_infos):
-                titre = etape.xpath('.//div[@class="RCP__sc-1wtzf9a-0 hXKiLp"]/h3/text()').get()
+                # titre = etape.xpath('.//div[@class="RCP__sc-1wtzf9a-0 hXKiLp"]/h3/text()').get()
                 description = etape.xpath('.//p[@class="RCP__sc-1wtzf9a-3 jFIVDw"]/text()').get()
                 # etape_dic = {'etap_id':i,'titre':titre, 'description':description}
                 etape_tab.append(description)
 
             infos_ingre = response.css('div.MuiGrid-root')
+
             for index, link in enumerate(infos_ingre):
                 img_ingre_url = link.xpath('.//div[@class="RCP__sc-vgpd2s-2 fNmocT"]/picture/img/@src').get()
                 #problem à resoudre
-                qty_ingre = link.xpath('.//span[@class="SHRD__sc-10plygc-0 epviYI"]/text()').extract_first()
+                # qty_ingre = link.xpath('.//span[@class="SHRD__sc-10plygc-0 epviYI"]/text()').extract_first()
+            
+               
                 nom_ingre = link.xpath('.//span[@class="RCP__sc-8cqrvd-3 itCXhd"]/text()').get()
                 qty = link.css('span.epviYI::text').get()
+                qty_ingre = link.xpath('.//span[@class="SHRD__sc-10plygc-0 epviYI"]/text()').getall()
                 if(nom_ingre == None):
                     nom_ingre = link.xpath('.//span[@class="RCP__sc-8cqrvd-3 cDbUWZ"]/text()').get()
                 if(qty_ingre == None):
@@ -125,7 +154,7 @@ class Marmiton(CrawlSpider):
         data = {
                 'id':self.item_index,
                 'nom':name,
-                'img_url': img_recette_url,
+                'img_url': img_url,
                 'category': categories,
                 'global_rating':global_rating,
                 'time_prepa': time_prepa, 
